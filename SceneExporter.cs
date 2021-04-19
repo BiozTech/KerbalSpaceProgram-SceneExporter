@@ -17,7 +17,7 @@ namespace SceneExporter
 		static StringBuilder sb = new StringBuilder();
 		static StringBuilder sbMaterials = new StringBuilder();
 		static HashSet<string> materialsCache = new HashSet<string>();
-		static int vertexIndexOffset, gameObjectIndex, textureIndex;
+		static int vertexIndexOffset, gameObjectIndex;
 
 		void Update()
 		{
@@ -25,7 +25,7 @@ namespace SceneExporter
 			{
 				if (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt) || Input.GetKey(KeyCode.AltGr))
 				{
-					SceneExporterGUI.Toggle();
+					SceneExporterGUI.ToggleByKey();
 				} else {
 					if (Settings.IsEnabled)
 					{
@@ -48,7 +48,7 @@ namespace SceneExporter
 			sb.Clear();
 			sbMaterials.Clear();
 			materialsCache.Clear();
-			vertexIndexOffset = gameObjectIndex = textureIndex = 0;
+			vertexIndexOffset = gameObjectIndex = 0;
 
 			sb.AppendLine("mtllib scene.mtl");
 
@@ -63,8 +63,7 @@ namespace SceneExporter
 						DoExportMesh(go, meshFilter.sharedMesh, meshRenderer);
 						DoExportMaterials(go, meshRenderer);
 					}
-					SkinnedMeshRenderer[] skinnedMeshRenderers = go.GetComponents<SkinnedMeshRenderer>();
-					foreach (SkinnedMeshRenderer skinnedMeshRenderer in skinnedMeshRenderers)
+					foreach (SkinnedMeshRenderer skinnedMeshRenderer in go.GetComponents<SkinnedMeshRenderer>())
 					{
 						Mesh meshBaked = new Mesh();
 						skinnedMeshRenderer.BakeMesh(meshBaked);
@@ -122,7 +121,6 @@ namespace SceneExporter
 					sb.AppendLine(String.Format("f {0}/{0}/{0} {1}/{1}/{1} {2}/{2}/{2}", triangles[t] + 1 + vertexIndexOffset, triangles[t+1] + 1 + vertexIndexOffset, triangles[t+2] + 1 + vertexIndexOffset));
 				}
 			}
-
 			vertexIndexOffset += mesh.vertices.Length;
 
 		}
@@ -134,7 +132,8 @@ namespace SceneExporter
 			foreach (Material material in materials)
 			{
 
-				sbMaterials.AppendLine("newmtl " + ReplaceSpaces(material.name));
+				string currentMaterialName = ReplaceSpaces(material.name);
+				sbMaterials.AppendLine("newmtl " + currentMaterialName);
 				if (material.HasProperty("_Color"))
 				{
 					sbMaterials.AppendLine(String.Format("Kd {0} {1} {2}", material.color.r, material.color.g, material.color.b));
@@ -148,17 +147,17 @@ namespace SceneExporter
 
 				if (Settings.IsExportingTextures)
 				{
-					if (material.HasProperty("_MainTex"))
+					if (material.HasProperty(TextureName.MainTex) && material.GetTexture(TextureName.MainTex) != null)
 					{
-						sbMaterials.AppendLine(String.Format("map_Kd {0}_MainTex.png", ReplaceSpaces(material.name)));
+						sbMaterials.AppendLine(String.Format("map_Kd textures/{0}{1}.png", currentMaterialName, TextureName.MainTex));
 					}
-					if (material.HasProperty("_SpecMap") || material.HasProperty("_Emissive"))
+					if (material.HasProperty(TextureName.Emissive) && material.GetTexture(TextureName.Emissive) != null) // SpecGlossMap?
 					{
-						sbMaterials.AppendLine(String.Format("map_Ks {0}_SpecMap.png", ReplaceSpaces(material.name)));
+						sbMaterials.AppendLine(String.Format("map_Ks textures/{0}{1}.png", currentMaterialName, TextureName.Emissive));
 					}
-					if (material.HasProperty("_BumpMap"))
+					if (material.HasProperty(TextureName.BumpMap) && material.GetTexture(TextureName.BumpMap) != null)
 					{
-						sbMaterials.AppendLine(String.Format("map_Bump {0}_BumpMap.png", ReplaceSpaces(material.name)));
+						sbMaterials.AppendLine(String.Format("map_Bump textures/{0}{1}.png", currentMaterialName, TextureName.BumpMap));
 					}
 
 					if (!materialsCache.Contains(material.name))
@@ -170,7 +169,7 @@ namespace SceneExporter
 							Texture texture = material.GetTexture(textureName);
 							if (texture != null)
 							{
-								File.WriteAllBytes(Path.Combine(texturesDirectory, String.Format("{0}{1}_{2}.png", go.name, ReplaceSpaces(textureName), textureIndex++)), TextureToTexture2D(texture).EncodeToPNG());
+								File.WriteAllBytes(Path.Combine(texturesDirectory, String.Format("{0}{1}.png", currentMaterialName, textureName)), TextureToTexture2D(texture).EncodeToPNG());
 							}
 						}
 					}
@@ -202,6 +201,22 @@ namespace SceneExporter
 		{
 			DontDestroyOnLoad(gameObject);
 			Settings.Load();
+		}
+
+		static class TextureName
+		{
+			public static string MainTex
+			{
+				get { return "_MainTex"; }
+			}
+			public static string Emissive
+			{
+				get { return "_Emissive"; }
+			}
+			public static string BumpMap
+			{
+				get { return "_BumpMap"; }
+			}
 		}
 
 	}

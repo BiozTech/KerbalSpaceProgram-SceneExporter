@@ -8,9 +8,11 @@ namespace SceneExporter
 	public static class Settings
 	{
 
+		public static bool IsGUIVisible = true;
 		public static bool IsEnabled = true;
 		public static bool IsExportingTextures = false;
-		public static float DistanceMax = 100f;
+		public static bool IsReadingKeys = false;
+		public static float DistanceMax = 50f;
 
 		public static KeyCode KeyRecord = KeyCode.F6;
 		public static string ScenesDirectoryDefault = KSPUtil.ApplicationRootPath;
