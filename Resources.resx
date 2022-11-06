@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="ToolbarIcon" type="System.Byte[], mscorlib">
+  <data name="SceneExporterToolbarIcon" type="System.Byte[], mscorlib">
     <value>
         /9kA2f/ZANn/4gDi/+AA4P84FDj/ARsB/xgYGP8LGgv/Hhce/8kCyf/qAOr/2QDZ/90A3f/JCcn/7urv
         ///////19vb/VWpX/xgAGP+MAIr/bXJy/+788v///////////01OTv8AAAD/GBgY/w0ZDf8XGBf/wQPB

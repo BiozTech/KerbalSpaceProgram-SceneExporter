@@ -8,8 +8,7 @@ namespace SceneExporter
 	public static class Core
 	{
 
-		public static bool IsGUIVisible = false;
-		public static bool IsExportingTextures = false;
+		public static bool IsGUIVisible = false, IsExportingTextures = false;
 		public static float DistanceMax = 50f;
 
 		public static void Log(object message)
@@ -26,13 +25,10 @@ namespace SceneExporter
 	public static class Settings
 	{
 
-		public static string ScenesDirectoryDefault = KSPUtil.ApplicationRootPath;
-		public static string ScenesDirectory = ScenesDirectoryDefault;
+		public static string ScenesDirectoryDefault = KSPUtil.ApplicationRootPath, ScenesDirectory = ScenesDirectoryDefault;
 
-		static string pluginDataDir = Path.Combine(KSPUtil.ApplicationRootPath, "GameData/BiozTech/PluginData");
-		static string settingsFileName = Path.Combine(pluginDataDir, "SceneExporterSettings.cfg");
-		static string configTagMain = "SceneExporterSettings";
-		static string configTagScenesDirectory = "ScenesDirectory";
+		static string pluginDataDir = Path.Combine(KSPUtil.ApplicationRootPath, "GameData/BiozTech/PluginData"), settingsFileName = Path.Combine(pluginDataDir, "SceneExporterSettings.cfg");
+		static string configTagMain = "SceneExporterSettings", configTagScenesDirectory = "ScenesDirectory";
 
 		public static void Load()
 		{
@@ -53,8 +49,7 @@ namespace SceneExporter
 			try
 			{
 
-				bool isOk = true;
-				bool isOkCurrent;
+				bool isOk = true, isOkCurrent;
 
 				isOkCurrent = configNode.HasValue(configTagScenesDirectory);
 				if (isOkCurrent)
@@ -87,7 +82,7 @@ namespace SceneExporter
 		public static void Save()
 		{
 			ConfigNode configNode = new ConfigNode(configTagMain);
-			configNode.AddValue(configTagScenesDirectory, ScenesDirectoryToOutput(), "Folder the scene will be saved to");
+			configNode.AddValue(configTagScenesDirectory, DirectoryToOutput(ScenesDirectory, ScenesDirectoryDefault), "Folder the scene will be saved to");
 			if (!Directory.Exists(pluginDataDir)) Directory.CreateDirectory(pluginDataDir);
 			File.WriteAllText(settingsFileName, configNode.ToString(), System.Text.Encoding.Unicode);
 		}
@@ -99,9 +94,9 @@ namespace SceneExporter
 			Save();
 		}
 
-		public static string ScenesDirectoryToOutput()
+		public static string DirectoryToOutput(string directory, string directoryDefault)
 		{
-			return (ComparePaths(ScenesDirectory, ScenesDirectoryDefault) != 0) ? ScenesDirectory : string.Empty;
+			return (ComparePaths(directory, directoryDefault) != 0) ? directory : string.Empty;
 		}
 		public static int ComparePaths(string path1, string path2)
 		{
